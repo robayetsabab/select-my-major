@@ -8,29 +8,27 @@ use Illuminate\Http\Request;
 
 class CertificationController extends Controller
 {
-    // Feature 4: Certifications & Learning Resources (with filters)
     public function index(Request $request)
     {
-        $query = Certification::with('major');
+        $majors = Major::orderBy('sort_order')->get();
 
-        if ($request->filled('major')) {
-            $query->where('major_id', $request->major);
-        }
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
-        }
-        if ($request->boolean('free')) {
-            $query->where(function ($q) {
-                $q->where('has_free_option', true)->orWhere('price_usd', 0);
+        $selected = $request->query('major');
+        $freeOnly = $request->boolean('free');
+
+        $query = Certification::with('major')->orderBy('major_id')->orderBy('sort_order');
+
+        if ($selected) {
+            $query->whereHas('major', function ($q) use ($selected) {
+                $q->where('slug', $selected);
             });
         }
-        if ($request->filled('q')) {
-            $query->where('name', 'like', '%' . $request->q . '%');
+
+        if ($freeOnly) {
+            $query->where('is_free', true);
         }
 
-        $certifications = $query->orderBy('major_id')->orderBy('name')->get();
-        $majors = Major::orderBy('id')->get();
+        $certifications = $query->get()->groupBy('major_id');
 
-        return view('certifications.index', compact('certifications', 'majors'));
+        return view('certifications.index', compact('majors', 'certifications', 'selected', 'freeOnly'));
     }
 }

@@ -6,16 +6,17 @@ use App\Models\Major;
 
 class MajorController extends Controller
 {
-    // Feature 1: Major Overview & Selection
     public function index()
     {
-        $majors = Major::orderBy('id')->get();
+        $majors = Major::orderBy('sort_order')->get();
+
         return view('majors.index', compact('majors'));
     }
 
     public function show(Major $major)
     {
-        $major->load('certifications');
-        return view('majors.show', compact('major'));
+        $others = Major::where('id', '!=', $major->id)->orderBy('sort_order')->get();
+
+        return view('majors.show', compact('major', 'others'));
     }
 }

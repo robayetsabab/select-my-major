@@ -3,30 +3,36 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Certification extends Model
 {
     protected $fillable = [
-        'major_id', 'name', 'provider', 'type', 'level',
-        'price_usd', 'price_note', 'has_free_option', 'source_url', 'description',
+        'major_id', 'name', 'provider', 'level', 'price', 'is_free', 'free_option', 'official_url', 'sort_order',
+        'type', 'price_usd', 'price_note', 'has_free_option', 'source_url', 'description',
     ];
 
-    protected $casts = ['has_free_option' => 'boolean'];
-
-    public function major(): BelongsTo
+    public function getPriceAttribute($value): string
     {
-        return $this->belongsTo(Major::class);
+        return $value ?: ($this->attributes['price_note'] ?? (($this->attributes['price_usd'] ?? null) !== null ? 'USD ' . $this->attributes['price_usd'] : 'Check provider for current pricing'));
     }
 
-    public function getPriceLabelAttribute(): string
+    public function getIsFreeAttribute($value): bool
     {
-        if ($this->price_usd === null) {
-            return 'Varies';
-        }
-        if ((float) $this->price_usd == 0.0) {
-            return 'Free';
-        }
-        return '$' . number_format($this->price_usd, 0) . ' (approx.)';
+        return (bool) ($value || ($this->attributes['has_free_option'] ?? false));
+    }
+
+    public function getFreeOptionAttribute($value): ?string
+    {
+        return $value ?: (($this->attributes['has_free_option'] ?? false) ? 'Free learning options may be available. Check the provider website.' : null);
+    }
+
+    public function getOfficialUrlAttribute($value): ?string
+    {
+        return $value ?: ($this->attributes['source_url'] ?? null);
+    }
+
+    public function major()
+    {
+        return $this->belongsTo(Major::class);
     }
 }
