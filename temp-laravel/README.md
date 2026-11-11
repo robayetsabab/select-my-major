@@ -12,8 +12,4 @@ Feature 4: Certifications & Learning Resources  (/certifications and a section o
    php artisan serve
 4. Open http://127.0.0.1:8000
 
-## Team merge notes
-- The `majors` table is shared. Jubayer and Washim should add their tables with a major_id
-  foreign key to `majors` instead of creating another majors table.
-- Add your own routes under the marked comment in routes/web.php.
-- Add your sections in resources/views/majors/show.blade.php where the comment says so.
+
