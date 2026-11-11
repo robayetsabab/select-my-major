@@ -1,0 +1,83 @@
+{
+  "info": {
+    "_postman_id": "d7f69ec4-7c35-4f85-9f48-113dbf5e6a21",
+    "name": "Select My Major - Module 1 (Jubayer Siam)",
+    "description": "Read-only REST API tests for Subfields & Details and Career Opportunities & Career Path.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Majors",
+      "item": [
+        {
+          "name": "List four majors",
+          "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{base_url}}/api/v1/majors" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));", "pm.test('Four majors are returned', () => pm.expect(pm.response.json().data.length).to.eql(4));"] } }]
+        }
+      ]
+    },
+    {
+      "name": "Subfields",
+      "item": [
+        {
+          "name": "List all subfields",
+          "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{base_url}}/api/v1/subfields?per_page=100" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));", "pm.test('16 subfields are seeded', () => pm.expect(pm.response.json().data.length).to.eql(16));"] } }]
+        },
+        {
+          "name": "Filter by Cyber Security",
+          "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{base_url}}/api/v1/subfields?major=cyber-security" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));", "pm.test('Only Cyber Security subfields', () => pm.expect(pm.response.json().data.every(x => x.major.slug === 'cyber-security')).to.eql(true));"] } }]
+        },
+        {
+          "name": "Search by keyword and level",
+          "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{base_url}}/api/v1/subfields?q=network&difficulty=Intermediate" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "Subfield detail - Network Security",
+          "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{base_url}}/api/v1/subfields/network-security" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));", "pm.test('Detail includes typical tasks', () => pm.expect(pm.response.json().data.typical_tasks).to.be.an('array'));", "pm.test('Major is included', () => pm.expect(pm.response.json().data.major.slug).to.eql('cyber-security'));"] } }]
+        }
+      ]
+    },
+    {
+      "name": "Careers",
+      "item": [
+        {
+          "name": "List all career roles",
+          "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{base_url}}/api/v1/careers?per_page=100" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));", "pm.test('20 career roles are seeded', () => pm.expect(pm.response.json().data.length).to.eql(20));"] } }]
+        },
+        {
+          "name": "Filter Data Science mid-level roles",
+          "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{base_url}}/api/v1/careers?major=data-science&level=Mid" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));", "pm.test('All results are Data Science mid-level roles', () => pm.expect(pm.response.json().data.every(x => x.major.slug === 'data-science' && x.level === 'Mid')).to.eql(true));"] } }]
+        },
+        {
+          "name": "Filter by industry",
+          "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{base_url}}/api/v1/careers?industry=Banking%20and%20fintech" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "Career detail - Data Scientist",
+          "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{base_url}}/api/v1/careers/data-scientist" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));", "pm.test('Career includes responsibilities and progression', () => { const d = pm.response.json().data; pm.expect(d.responsibilities).to.be.an('array'); pm.expect(d.next_roles).to.be.an('array'); });"] } }]
+        }
+      ]
+    },
+    {
+      "name": "Global Search",
+      "item": [
+        {
+          "name": "Search subfields and careers",
+          "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{base_url}}/api/v1/search?q=automation" },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));", "pm.test('Both result groups are present', () => { const d = pm.response.json(); pm.expect(d.subfields).to.be.an('array'); pm.expect(d.careers).to.be.an('array'); });"] } }]
+        }
+      ]
+    }
+  ]
+}
