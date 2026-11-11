@@ -16,7 +16,8 @@ class MajorController extends Controller
     public function show(Major $major)
     {
         $others = Major::where('id', '!=', $major->id)->orderBy('sort_order')->get();
+        $counts = ['certifications' => $major->certifications()->count()];
 
-        return view('majors.show', compact('major', 'others'));
+        return view('majors.show', compact('major', 'others', 'counts'));
     }
 }
