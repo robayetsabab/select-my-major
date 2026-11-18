@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             MajorSeeder::class,
             CertificationSeeder::class,
+            Module2CareerStorySeeder::class,
         ]);
     }
 }
